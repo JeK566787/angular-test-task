@@ -1,9 +1,11 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { WebSocketService } from '../../services/websocket.service';
-import { FintachartsService } from '../../services/auth.getInstruments';
 import { HttpClientModule } from '@angular/common/http';
+
+import { AuthService } from '../../services/auth.service';
+import { InstrumentsService } from '../../services/instruments.service';
+import { WebSocketService } from '../../services/websocket.service';
 
 @Component({
   selector: 'app-realtime',
@@ -11,11 +13,10 @@ import { HttpClientModule } from '@angular/common/http';
   imports: [CommonModule, HttpClientModule, FormsModule],
   templateUrl: `./realtime.component.html`,
   styleUrl: './realtime.component.scss',
-
 })
 export class RealtimeComponent implements OnInit {
-
-  private fintacharts = inject(FintachartsService);
+  private auth = inject(AuthService);
+  private instrumentsService = inject(InstrumentsService);
   private ws = inject(WebSocketService);
 
   instruments: any[] = [];
@@ -25,18 +26,18 @@ export class RealtimeComponent implements OnInit {
   isSubscribed = false;
 
   ngOnInit(): void {
-    this.fintacharts.login().subscribe({
+    this.auth.login().subscribe({
       next: (res) => {
         const token = res.access_token;
-        this.fintacharts.token.set(token);
+        this.auth.setToken(token); // сохраняем токен
         this.ws.connect(token);
 
-        this.fintacharts.getInstruments().subscribe({
+        this.instrumentsService.getInstruments().subscribe({
           next: (res: any) => {
             this.instruments = res.data || [];
             console.log('Instruments loaded:', this.instruments);
           },
-          error: (err) => console.error('Ошибка получения инструментов', err)
+          error: (err) => console.error('Ошибка получения инструментов', err),
         });
 
         this.ws.getMessages().subscribe((msg) => {
@@ -45,7 +46,7 @@ export class RealtimeComponent implements OnInit {
           if (msg.type === 'l1-update' && msg.instrumentId === this.selectedInstrumentId) {
             this.selectedData = {
               price: msg.last?.price ?? msg.bid?.price ?? msg.ask?.price ?? 0,
-              time: new Date().toLocaleTimeString() // ← текущая дата и время
+              time: new Date().toLocaleTimeString(),
             };
           }
 
@@ -54,7 +55,7 @@ export class RealtimeComponent implements OnInit {
           }
         });
       },
-      error: (err) => console.error('Login failed', err)
+      error: (err) => console.error('Login failed', err),
     });
   }
 
@@ -70,7 +71,7 @@ export class RealtimeComponent implements OnInit {
       instrumentId: instrument.id,
       provider: instrument.provider || 'oanda',
       subscribe: true,
-      kinds: ['ask', 'bid', 'last']
+      kinds: ['ask', 'bid', 'last'],
     });
 
     this.isSubscribed = true;
@@ -85,7 +86,7 @@ export class RealtimeComponent implements OnInit {
       instrumentId: this.selectedInstrumentId,
       provider: 'oanda',
       subscribe: false,
-      kinds: ['ask', 'bid', 'last']
+      kinds: ['ask', 'bid', 'last'],
     });
 
     this.isSubscribed = false;
@@ -93,16 +94,3 @@ export class RealtimeComponent implements OnInit {
     this.selectedSymbol = '';
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

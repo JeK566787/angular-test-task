@@ -1,9 +1,10 @@
-import { inject, Injectable } from '@angular/core';
+// src/app/services/auth.service.ts
+
+import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { signal } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
-export class FintachartsService {
+export class AuthService {
     private http = inject(HttpClient);
 
     private readonly URI = 'https://platform.fintacharts.com';
@@ -23,22 +24,18 @@ export class FintachartsService {
             `${this.URI}/identity/realms/fintatech/protocol/openid-connect/token`,
             body.toString(),
             {
-                headers: new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' }),
+                headers: new HttpHeaders({
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }),
             }
         );
     }
 
-    getInstruments() {
-        const token = this.token();
-        if (!token) throw new Error('Not authenticated');
+    setToken(value: string) {
+        this.token.set(value);
+    }
 
-        return this.http.get<any>(
-            `${this.URI}/api/instruments/v1/instruments?provider=oanda&kind=forex`,
-            {
-                headers: new HttpHeaders({
-                    Authorization: `Bearer ${token}`,
-                }),
-            }
-        );
+    getToken(): string | null {
+        return this.token();
     }
 }
