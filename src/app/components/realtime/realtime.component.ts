@@ -29,7 +29,7 @@ export class RealtimeComponent implements OnInit {
     this.auth.login().subscribe({
       next: (res) => {
         const token = res.access_token;
-        this.auth.setToken(token); // сохраняем токен
+        this.auth.setToken(token);
         this.ws.connect(token);
 
         this.instrumentsService.getInstruments().subscribe({
