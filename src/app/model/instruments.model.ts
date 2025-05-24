@@ -1,4 +1,4 @@
-// models/instrument.model.ts
+
 export interface Instrument {
     id: string;
     symbol: string;

@@ -2,40 +2,16 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { WebSocketService } from '../../services/websocket.service';
-import { FintachartsService } from '../../services/instuments';
+import { FintachartsService } from '../../services/auth.getInstruments';
 import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-realtime',
   standalone: true,
   imports: [CommonModule, HttpClientModule, FormsModule],
-  template: `
-    <h2>Live Price Stream</h2>
+  templateUrl: `./realtime.component.html`,
+  styleUrl: './realtime.component.scss',
 
-    <div>
-      <select [(ngModel)]="selectedInstrumentId">
-        <option value="">Select Instrument</option>
-        <option *ngFor="let instrument of instruments" [value]="instrument.id">
-          {{ instrument.symbol }}
-        </option>
-      </select>
-      <button (click)="subscribeToInstrument()" [disabled]="!selectedInstrumentId || isSubscribed">
-        Подписаться
-      </button>
-      <button (click)="unsubscribeFromInstrument()" [disabled]="!isSubscribed">
-        Отписаться
-      </button>
-    </div>
-
-    <table *ngIf="selectedData">
-      <tr><th>Symbol</th><th>Price</th><th>Time</th></tr>
-      <tr>
-        <td>{{ selectedSymbol }}</td>
-        <td>{{ selectedData.price.toFixed(2) }}</td>
-        <td>{{ selectedData.time }}</td>
-      </tr>
-    </table>
-  `
 })
 export class RealtimeComponent implements OnInit {
 
@@ -126,56 +102,6 @@ export class RealtimeComponent implements OnInit {
 
 
 
-// import { Component, OnInit, inject } from '@angular/core';
-// import { CommonModule } from '@angular/common';
-// import { WebSocketService } from '../services/websocket.service';
-// import { FintachartsService } from '../services/instuments';
-// import { HttpClientModule } from '@angular/common/http';
-
-// @Component({
-//     selector: 'app-realtime',
-//     standalone: true,
-//     imports: [CommonModule, HttpClientModule],
-//     template: `
-//     <h2>Live Price Stream</h2>
-//     <pre *ngIf="data">{{ data | json }}</pre>
-//   `
-// })
-// export class RealtimeComponent implements OnInit {
-//     private fintacharts = inject(FintachartsService);
-//     private ws = inject(WebSocketService);
-//     data: any;
-
-//     ngOnInit(): void {
-//         this.fintacharts.login().subscribe({
-//             next: (res) => {
-//                 const token = res.access_token;
-//                 this.fintacharts.token.set(token);
-//                 this.ws.connect(token);
-
-//                 this.ws.getMessages().subscribe((msg) => {
-//                     this.data = msg;
-
-//                     // Дождались сессии — теперь можно подписаться
-//                     if (msg.type === 'session') {
-//                         const instrumentId = 'ebefe2c7-5ac9-43bb-a8b7-4a97bf2c2576';
-
-//                         this.ws.sendMessage({
-//                             type: 'l1-subscription',
-//                             id: '1',
-//                             instrumentId,
-//                             provider: 'simulation',
-//                             subscribe: true,
-//                             kinds: ['ask', 'bid', 'last']
-//                         });
-//                     }
-//                 });
-//             },
-//             error: (err) => console.error('Login failed', err)
-//         });
-//     }
-
-// }
 
 
 
