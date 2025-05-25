@@ -6,6 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
 import { InstrumentsService } from '../../services/instruments.service';
 import { WebSocketService } from '../../services/websocket.service';
+import { Instrument, InstrumentsResponse } from '../../model/instruments.model';
 
 @Component({
   selector: 'app-realtime',
@@ -19,7 +20,7 @@ export class RealtimeComponent {
   private instrumentsService = inject(InstrumentsService);
   private ws = inject(WebSocketService);
 
-  instruments = signal<any[]>([]);
+  instruments = signal<Instrument[]>([]);
   selectedData = signal<{ price: number; time: string } | null>(null);
   selectedSymbol = signal<string>('');
   isSubscribed = signal<boolean>(false);
@@ -46,7 +47,7 @@ export class RealtimeComponent {
 
   private loadInstruments(): void {
     this.instrumentsService.getInstruments().subscribe({
-      next: (res: any) => {
+      next: (res: InstrumentsResponse) => {
         this.instruments.set(res.data || []);
         console.log('Instruments loaded:', res.data);
       },
@@ -72,7 +73,7 @@ export class RealtimeComponent {
   }
 
   subscribeToInstrument(): void {
-    const instrument = this.instruments().find(i => i.id === this.selectedInstrumentId());
+    const instrument = this.instruments().find((i: Instrument) => i.id === this.selectedInstrumentId());
     if (!instrument) return;
 
     this.selectedSymbol.set(instrument.symbol);

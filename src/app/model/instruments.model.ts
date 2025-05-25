@@ -7,6 +7,7 @@ export interface Instrument {
     tickSize: number;
     currency: string;
     baseCurrency: string;
+    provider?: string;
     profile: {
         name: string;
         gics: any;
