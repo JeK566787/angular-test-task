@@ -1,31 +1,37 @@
 <div class="wrapper">
     <h1>Price Checker</h1>
 
-    <div class="controls">
-        <select [(ngModel)]="selectedInstrumentId">
-            <option value="">Select Instrument</option>
-            <option *ngFor="let instrument of instruments" [value]="instrument.id">
+    <div class="controls" [formGroup]="form">
+        <select formControlName="instrumentId">
+            <option value="" disabled>Select Instrument</option>
+            @for (instrument of instruments(); track instrument.id) {
+            <option [value]="instrument.id">
                 {{ instrument.symbol }}
             </option>
+            }
         </select>
-        <button (click)="subscribeToInstrument()" [disabled]="!selectedInstrumentId || isSubscribed">
+
+        <button (click)="subscribeToInstrument()" [disabled]="!form.get('instrumentId')?.value || isSubscribed()">
             Подписаться
         </button>
-        <button (click)="unsubscribeFromInstrument()" [disabled]="!isSubscribed">
+
+        <button (click)="unsubscribeFromInstrument()" [disabled]="!isSubscribed()">
             Отписаться
         </button>
     </div>
 
-    <table *ngIf="selectedData">
+    @if (selectedData()) {
+    <table>
         <tr>
             <th>Symbol</th>
             <th>Price</th>
             <th>Time</th>
         </tr>
         <tr>
-            <td>{{ selectedSymbol }}</td>
-            <td>{{ selectedData.price.toFixed(2) }}</td>
-            <td>{{ selectedData.time }}</td>
+            <td>{{ selectedSymbol() }}</td>
+            <td>{{ selectedData()!.price.toFixed(2) }}</td>
+            <td>{{ selectedData()!.time }}</td>
         </tr>
     </table>
+    }
 </div>
